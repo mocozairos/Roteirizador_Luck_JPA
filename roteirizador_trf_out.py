@@ -1,10 +1,13 @@
 import streamlit as st
-import datetime
-import pandas as pd
-import xlwings as xw
 import mysql.connector
 import decimal
+import pandas as pd
+import datetime
 from datetime import timedelta
+from itertools import combinations
+from google.oauth2 import service_account
+import gspread 
+import webbrowser
 
 def gerar_df_phoenix(vw_name):
     # Parametros de Login AWS
@@ -54,13 +57,30 @@ def objeto_intervalo(titulo, valor_padrao, chave):
 
 def puxar_sequencias_hoteis():
 
-    nome_excel = 'BD - Hoteis Joao Pessoa.xlsx'
+    nome_credencial = st.secrets["CREDENCIAL_SHEETS"]
+    credentials = service_account.Credentials.from_service_account_info(nome_credencial)
+    scope = ['https://www.googleapis.com/auth/spreadsheets']
+    credentials = credentials.with_scopes(scope)
+    client = gspread.authorize(credentials)
 
-    st.session_state.df_joao_pessoa = pd.read_excel(nome_excel, sheet_name='Hoteis Joao Pessoa')
+    # Abrir a planilha desejada pelo seu ID
+    spreadsheet = client.open_by_key('1kKYpLIe7GJ9W277D9zVJP_3_VS2FDB-8vHvJSjUGiGE')
 
-    st.session_state.df_pitimbu = pd.read_excel(nome_excel, sheet_name='Hoteis Pitimbu')
+    lista_abas = ['Hoteis Joao Pessoa', 'Hoteis Pitimbu', 'Hoteis Campina Grande']
 
-    st.session_state.df_campina_grande = pd.read_excel(nome_excel, sheet_name='Hoteis Campina Grande')
+    lista_df_hoteis = ['df_joao_pessoa', 'df_pitimbu', 'df_campina_grande']
+
+    for index in range(len(lista_abas)):
+
+        aba = lista_abas[index]
+
+        df_hotel = lista_df_hoteis[index]
+        
+        sheet = spreadsheet.worksheet(aba)
+
+        sheet_data = sheet.get_all_values()
+
+        st.session_state[df_hotel] = pd.DataFrame(sheet_data[1:], columns=sheet_data[0])
 
 def gerar_itens_faltantes(df_servicos, df_hoteis):
 
@@ -80,23 +100,24 @@ def inserir_hoteis_faltantes(itens_faltantes, df_hoteis, aba_excel, regiao):
 
     st.dataframe(df_itens_faltantes, hide_index=True)
 
-    df_itens_faltantes['Sequência']=''
-
-    df_itens_faltantes['Apoio']=''
+    df_itens_faltantes[['Região', 'Sequência', 'Bus', 'Micro', 'Van']]=''
 
     df_hoteis_geral = pd.concat([df_hoteis, df_itens_faltantes])
 
-    wb = xw.Book('BD - Hoteis Joao Pessoa.xlsx')
+    nome_credencial = st.secrets["CREDENCIAL_SHEETS"]
+    credentials = service_account.Credentials.from_service_account_info(nome_credencial)
+    scope = ['https://www.googleapis.com/auth/spreadsheets']
+    credentials = credentials.with_scopes(scope)
+    client = gspread.authorize(credentials)
+    
+    spreadsheet = client.open_by_key('1kKYpLIe7GJ9W277D9zVJP_3_VS2FDB-8vHvJSjUGiGE')
 
-    sheet = wb.sheets[aba_excel]
-
-    sheet.range('A2:Z100000').clear_contents()
-
-    sheet.range('A2').options(index=False).value = df_hoteis_geral.values
-
-    wb.save()
-
-    wb.close()
+    sheet = spreadsheet.worksheet(aba_excel)
+    sheet_data = sheet.get_all_values()
+    limpar_colunas = "A:F"
+    sheet.batch_clear([limpar_colunas])
+    data = [df_hoteis_geral.columns.values.tolist()] + df_hoteis_geral.values.tolist()
+    sheet.update("A1", data)
 
     st.error('Os hoteis acima não estão cadastrados na lista de sequência de hoteis.' + 
              f' Eles foram inseridos no final da lista de {regiao}. Por favor, coloque-os na sequência e tente novamente')
