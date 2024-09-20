@@ -1940,7 +1940,7 @@ if not 'df_router' in st.session_state:
 
     st.session_state.df_router = gerar_df_phoenix('vw_router')
 
-if not 'df_joao pessoa' in st.session_state:
+if not 'df_joao_pessoa' in st.session_state:
 
     puxar_sequencias_hoteis()
 
