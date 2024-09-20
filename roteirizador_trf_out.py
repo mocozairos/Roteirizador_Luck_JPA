@@ -396,7 +396,8 @@ def definir_intervalo_ref(df, value, intervalo_hoteis_bairros_iguais, intervalo_
         return intervalo_hoteis_bairros_diferentes*2
 
     elif df.at[value-1, 'Região']==df.at[value, 'Região'] or \
-        ((df.at[value-1, 'Região']!='MANAIRA 1') & (df.at[value, 'Região']=='TAMBAU')):
+        ((df.at[value-1, 'Região']!='MANAIRA 1') & (df.at[value, 'Região']=='TAMBAU')) or \
+        ((df.at[value-1, 'Região']!='MANAIRA') & (df.at[value, 'Região']=='MANAIRA 1')):
 
         return intervalo_hoteis_bairros_iguais
     
