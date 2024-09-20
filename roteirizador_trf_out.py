@@ -448,6 +448,8 @@ def roteirizar_voo_juncao_mais_pax_max(df_servicos, roteiro, max_hoteis, pax_max
 
     mask_servicos_sem_juncao = (pd.isna(df_servicos['Junção'])) & (df_servicos['Modo do Servico']=='REGULAR')
 
+    parar_loop=0
+
     while True:
 
         df_hoteis_bus_sem_juncao = df_servicos[mask_servicos_sem_juncao].groupby('Voo').agg({'Total ADT | CHD': 'sum'}).reset_index()
@@ -466,15 +468,7 @@ def roteirizar_voo_juncao_mais_pax_max(df_servicos, roteiro, max_hoteis, pax_max
 
                     juncao = df_hoteis_bus_com_juncao.at[index, 'Junção']
 
-                    if pax_max > 32:
-
-                        mask_servicos = (df_servicos['Bus']=='X') & (df_servicos['Junção']==juncao) & \
-                            (df_servicos['Modo do Servico']=='REGULAR')
-                        
-                    else:
-
-                        mask_servicos = (df_servicos['Micro']=='X') & (df_servicos['Junção']==juncao) & \
-                            (df_servicos['Modo do Servico']=='REGULAR')
+                    mask_servicos = (df_servicos['Junção']==juncao) & (df_servicos['Modo do Servico']=='REGULAR')
                         
                     df_ref = df_servicos[mask_servicos].groupby('Est Origem')\
                                                 .agg({'Total ADT | CHD': 'sum', 'Sequência': 'first'})\
@@ -534,15 +528,7 @@ def roteirizar_voo_juncao_mais_pax_max(df_servicos, roteiro, max_hoteis, pax_max
 
                     voo_ref = df_hoteis_bus_sem_juncao.at[index, 'Voo']
 
-                    if pax_max > 32:
-
-                        mask_servicos = (df_servicos['Bus']=='X') & (df_servicos['Voo']==voo_ref) & \
-                            (df_servicos['Modo do Servico']=='REGULAR')
-                        
-                    else:
-
-                        mask_servicos = (df_servicos['Micro']=='X') & (df_servicos['Voo']==voo_ref) & \
-                            (df_servicos['Modo do Servico']=='REGULAR')
+                    mask_servicos = (df_servicos['Voo']==voo_ref) & (df_servicos['Modo do Servico']=='REGULAR')
                         
                     df_ref = df_servicos[mask_servicos].groupby('Est Origem')\
                                                 .agg({'Total ADT | CHD': 'sum', 'Sequência': 'first'})\
@@ -1564,6 +1550,20 @@ def verificar_rotas_alternativas_ou_plotar_roteiros(df_roteiros_alternativos, ro
 
     else:
 
+        lista_dfs = [df_hoteis_pax_max, df_juncoes_pax_max, df_voos_pax_max, df_router_filtrado_2]
+
+        n_carros = 0
+
+        for df in lista_dfs:
+            
+            if len(df)>0:
+
+                n_carros += len(df[['Roteiro', 'Carros']].drop_duplicates())
+
+        with row_warning[0]:
+
+            st.header(f'A roteirização usou um total de {n_carros} carros')
+
         if len(df_hoteis_pax_max)>0:
 
             coluna = plotar_roteiros_simples(df_hoteis_pax_max, row3, coluna)
@@ -2337,7 +2337,7 @@ if 'nome_html' in st.session_state and len(st.session_state.df_roteiros_alternat
 
             df_roteiros_alternativos = pd.DataFrame(columns=st.session_state.df_roteiros_alternativos.columns.tolist())
 
-        lista_dfs = [df_hoteis_pax_max, df_juncoes_pax_max, df_voos_pax_max, df_router_filtrado_2]
+        lista_dfs = [df_hoteis_pax_max, df_juncoes_pax_max, df_voos_pax_max, df_router_filtrado_2, df_roteiros_alternativos]
 
         n_carros = 0
 
