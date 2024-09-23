@@ -649,7 +649,8 @@ def gerar_horarios_apresentacao(df_servicos, roteiro, max_hoteis):
         # Se o serviço for privativo
 
         if df_servicos.at[index, 'Modo do Servico']=='PRIVATIVO POR VEICULO' or \
-            df_servicos.at[index, 'Modo do Servico']=='PRIVATIVO POR PESSOA':
+            df_servicos.at[index, 'Modo do Servico']=='PRIVATIVO POR PESSOA' or \
+                df_servicos.at[index, 'Modo do Servico']=='EXCLUSIVO':
 
             roteiro, df_servicos = roteirizar_privativos(roteiro, df_servicos, index)
 
@@ -720,6 +721,8 @@ def gerar_horarios_apresentacao(df_servicos, roteiro, max_hoteis):
                                 # Colhe a quantidade de paxs do hotel anterior, o bairro do hotel atual, a quantidade de paxs do hotel atual 
                                 # e verifica se estoura a capacidade máxima de um carro
 
+                                paxs_hotel_anterior = paxs_hotel
+
                                 bairro=df_servicos.at[value, 'Região']
 
                                 paxs_hotel = df_ref[df_ref['Est Origem']==df_servicos.at[value, 'Est Origem']]\
@@ -744,8 +747,12 @@ def gerar_horarios_apresentacao(df_servicos, roteiro, max_hoteis):
 
                                     if bairro!='':
 
-                                        intervalo_ref = definir_intervalo_ref(df_servicos, value, intervalo_bairros_iguais, 
-                                                                              intervalo_bairros_diferentes)
+                                        intervalo_ref = definir_intervalo_ref(df_servicos, value, intervalo_hoteis_bairros_iguais, 
+                                                                              intervalo_hoteis_bairros_diferentes)
+                                        
+                                    if paxs_hotel_anterior>=pax_cinco_min:
+
+                                        intervalo_ref+=intervalo_hoteis_bairros_iguais
 
                                     data_horario_hotel = df_servicos.at[value-1, 'Data Horario Apresentacao']-\
                                         intervalo_ref
@@ -817,6 +824,8 @@ def gerar_horarios_apresentacao(df_servicos, roteiro, max_hoteis):
 
                                 contador_hoteis+=1
 
+                                paxs_hotel_anterior = paxs_hotel
+
                                 bairro=df_servicos.at[value, 'Região']
 
                                 paxs_hotel = df_ref[df_ref['Est Origem']==df_servicos.at[value, 'Est Origem']]\
@@ -852,8 +861,12 @@ def gerar_horarios_apresentacao(df_servicos, roteiro, max_hoteis):
 
                                         if bairro!='':
 
-                                            intervalo_ref = definir_intervalo_ref(df_servicos, value, intervalo_bairros_iguais, 
-                                                                                  intervalo_bairros_diferentes)
+                                            intervalo_ref = definir_intervalo_ref(df_servicos, value, intervalo_hoteis_bairros_iguais, 
+                                                                                  intervalo_hoteis_bairros_diferentes)
+                                            
+                                        if paxs_hotel_anterior>=pax_cinco_min:
+
+                                            intervalo_ref+=intervalo_hoteis_bairros_iguais
 
                                         data_horario_hotel = df_servicos.at[value-1, 'Data Horario Apresentacao']-\
                                             intervalo_ref
@@ -930,6 +943,8 @@ def gerar_horarios_apresentacao(df_servicos, roteiro, max_hoteis):
                                 # Colhe a quantidade de paxs do hotel anterior, o bairro do hotel atual, a quantidade de paxs do hotel atual 
                                 # e verifica se estoura a capacidade máxima de um carro
 
+                                paxs_hotel_anterior = paxs_hotel
+
                                 bairro=df_servicos.at[value, 'Região']
 
                                 paxs_hotel = df_ref[df_ref['Est Origem']==df_servicos.at[value, 'Est Origem']]\
@@ -954,8 +969,12 @@ def gerar_horarios_apresentacao(df_servicos, roteiro, max_hoteis):
 
                                     if bairro!='':
 
-                                        intervalo_ref = definir_intervalo_ref(df_servicos, value, intervalo_bairros_iguais, 
-                                                                              intervalo_bairros_diferentes)
+                                        intervalo_ref = definir_intervalo_ref(df_servicos, value, intervalo_hoteis_bairros_iguais, 
+                                                                              intervalo_hoteis_bairros_diferentes)
+                                        
+                                    if paxs_hotel_anterior>=pax_cinco_min:
+
+                                        intervalo_ref+=intervalo_hoteis_bairros_iguais
 
                                     data_horario_hotel = df_servicos.at[value-1, 'Data Horario Apresentacao']-\
                                         intervalo_ref
@@ -1023,6 +1042,8 @@ def gerar_horarios_apresentacao(df_servicos, roteiro, max_hoteis):
 
                                 contador_hoteis+=1
 
+                                paxs_hotel_anterior = paxs_hotel
+
                                 bairro=df_servicos.at[value, 'Região']
 
                                 paxs_hotel = df_ref[df_ref['Est Origem']==df_servicos.at[value, 'Est Origem']]\
@@ -1058,8 +1079,12 @@ def gerar_horarios_apresentacao(df_servicos, roteiro, max_hoteis):
 
                                         if bairro!='':
 
-                                            intervalo_ref = definir_intervalo_ref(df_servicos, value, intervalo_bairros_iguais, 
-                                                                                  intervalo_bairros_diferentes)
+                                            intervalo_ref = definir_intervalo_ref(df_servicos, value, intervalo_hoteis_bairros_iguais, 
+                                                                                  intervalo_hoteis_bairros_diferentes)
+                                            
+                                        if paxs_hotel_anterior>=pax_cinco_min:
+
+                                            intervalo_ref+=intervalo_hoteis_bairros_iguais
 
                                         data_horario_hotel = df_servicos.at[value-1, 'Data Horario Apresentacao']-\
                                             intervalo_ref
@@ -1169,6 +1194,8 @@ def gerar_roteiros_alternativos(df_servicos, max_hoteis_ref):
                         contador_hoteis = 1
                         
                     else:
+
+                        paxs_hotel_anterior = paxs_hotel
     
                         bairro=df_ref.at[index, 'Região']
     
@@ -1208,8 +1235,12 @@ def gerar_roteiros_alternativos(df_servicos, max_hoteis_ref):
     
                             if bairro!='':
     
-                                intervalo_ref = definir_intervalo_ref(df_ref, index, intervalo_bairros_iguais, 
-                                                                      intervalo_bairros_diferentes)
+                                intervalo_ref = definir_intervalo_ref(df_ref, index, intervalo_hoteis_bairros_iguais, 
+                                                                      intervalo_hoteis_bairros_diferentes)
+                                
+                            if paxs_hotel_anterior>=pax_cinco_min:
+
+                                intervalo_ref+=intervalo_hoteis_bairros_iguais
     
                             data_horario_hotel = df_ref.at[index-1, 'Data Horario Apresentacao']-intervalo_ref
     
