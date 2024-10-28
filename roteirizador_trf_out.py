@@ -2802,15 +2802,15 @@ if not 'df_joao_pessoa' in st.session_state:
 
 with row1[0]:
 
-    intervalo_inicial_joao_pessoa = objeto_intervalo('Horário Último Hotel | João Pessoa', time(2, 45), 
+    intervalo_inicial_joao_pessoa = objeto_intervalo('Antecipação Último Hotel | João Pessoa', time(2, 45), 
                                                      'intervalo_inicial_joao_pessoa')
 
     intervalo_pu_hotel = objeto_intervalo('Intervalo Hoteis | Primeiro vs Último', time(0, 45), 'intervalo_pu_hotel')
 
-    intervalo_inicial_recife = objeto_intervalo('Horário Último Hotel | Recife ou Campina Grande', time(4, 45), 
+    intervalo_inicial_recife = objeto_intervalo('Antecipação Último Hotel | Recife ou Campina Grande', time(4, 45), 
                                                 'intervalo_inicial_recife')
     
-    intervalo_inicial_campina_grande = objeto_intervalo('Horário Último Hotel | Campina Grande p/ Aeroporto Campina Grande', 
+    intervalo_inicial_campina_grande = objeto_intervalo('Antecipação Último Hotel | Campina Grande p/ Aeroporto Campina Grande', 
                                                         time(2, 0), 'intervalo_inicial_campina_grande')
 
 with row1[1]:
@@ -2820,7 +2820,7 @@ with row1[1]:
     intervalo_hoteis_bairros_diferentes = objeto_intervalo('Intervalo Hoteis | Bairros Diferentes', time(0, 10), 
                                                     'intervalo_hoteis_bairros_diferentes')
     
-    intervalo_inicial_pitimbu = objeto_intervalo('Horário Último Hotel | Pitimbú', time(3, 45), 'intervalo_inicial_pitimbu')
+    intervalo_inicial_pitimbu = objeto_intervalo('Antecipação Último Hotel | Pitimbú', time(3, 45), 'intervalo_inicial_pitimbu')
  
 with row1[2]:
 
