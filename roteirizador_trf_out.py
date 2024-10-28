@@ -535,7 +535,7 @@ def definir_intervalo_ref(df, value):
 
     if df.at[value-1, 'Região']=='CENTRO':
 
-        return transformar_timedelta(st.session_state.intervalo_hoteis_bairros_diferentes*2)
+        return transformar_timedelta(st.session_state.intervalo_hoteis_bairros_diferentes)*2
 
     elif df.at[value-1, 'Região']==df.at[value, 'Região'] or \
         ((df.at[value-1, 'Região']!='MANAIRA 1') & (df.at[value, 'Região']=='TAMBAU')) or \
