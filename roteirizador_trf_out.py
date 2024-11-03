@@ -2237,6 +2237,8 @@ def verificar_rotas_alternativas_ou_plotar_roteiros(df_roteiros_alternativos, ro
         df_pdf = pd.concat([df_router_filtrado_2, df_hoteis_pax_max], ignore_index=True)
         
         df_pdf_2 = df_pdf[['Reserva', 'Data Horario Apresentacao']].sort_values(by='Reserva').reset_index(drop=True)
+
+        st.session_state.df_insercao = df_pdf[['Id_Servico', 'Data Horario Apresentacao']].reset_index(drop=True)
         
         for index in range(len(df_pdf)):
 
@@ -2765,6 +2767,70 @@ def gerar_horarios_apresentacao_2(df_servicos):
             df_servicos.at[index, 'Data Horario Apresentacao']=data_horario_hotel
 
     return df_servicos
+
+def atualizar_banco_dados(df_exportacao, base_luck):
+
+    config = {
+    'user': 'user_automation',
+    'password': 'auto_luck_2024',
+    'host': 'comeia.cixat7j68g0n.us-east-1.rds.amazonaws.com',
+    'database': base_luck
+    }
+
+    # Conexão ao banco de dados
+    conexao = mysql.connector.connect(**config)
+    cursor = conexao.cursor()
+    
+    # Coluna para armazenar o status da atualização
+    df_exportacao['Status Serviço'] = ''
+    df_exportacao['Status Auditoria'] = ''
+    
+    # Placeholder para exibir o DataFrame e atualizar em tempo real
+    placeholder = st.empty()
+    for idx, row in df_exportacao.iterrows():
+        # id_reserva = row['Id Reserva']
+        id_servico = row['Id_Servico']
+        # currentPresentationHour = str(row['Horario de apresentação atual'])
+        newPresentationHour = str(row['Data Horario Apresentacao'])
+        
+        # data = '{"presentation_hour":["' + currentPresentationHour + '","' + newPresentationHour + ' Roteirizador"]}'
+        
+        # #Timestamp Unix atual em string
+        # current_timestamp = str(int(time.time()))
+        
+        try:
+            # Atualizar o banco de dados se o ID já existir
+            query = "UPDATE reserve_service SET presentation_hour = %s WHERE id = %s"
+            cursor.execute(query, (newPresentationHour, id_servico))
+            conexao.commit()
+            df_exportacao.at[idx, 'Status Serviço'] = 'Atualizado com sucesso'
+            
+        except Exception as e:
+            df_exportacao.at[idx, 'Status Serviço'] = f'Erro: {e}'
+        
+        # try:
+        #     # Adicionar registro de edição na tabela de auditoria
+        #     query = "INSERT INTO changelogs (relatedObjectType, relatedObjectId, parentId, data, createdAt, type, userId, module, hostname) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, null)"
+        #     cursor.execute(query, ('ReserveService', id_servico, id_reserva, data, current_timestamp, 'update', st.query_params["userId"], 'router'))
+        #     conexao.commit()
+        #     df_exportacao.at[idx, 'Status Auditoria'] = 'Atualizado com sucesso'
+        # except Exception as e:
+        #     df_exportacao.at[idx, 'Status Auditoria'] = f'Erro: {e}'
+            
+        # Define o estilo para coloração condicional
+        styled_df = df_exportacao.style.applymap(
+            lambda val: 'background-color: green; color: white' if val == 'Atualizado com sucesso' 
+            else ('background-color: red; color: white' if val != '' else ''),
+            subset=['Status Serviço', 'Status Auditoria']
+        )
+        
+        # Atualiza o DataFrame na interface em tempo real
+        placeholder.dataframe(styled_df, hide_index=True, use_container_width=True)
+        # time.sleep(0.5)
+    
+    cursor.close()
+    conexao.close()
+    return df_exportacao
 
 st.set_page_config(layout='wide')
 
@@ -3421,6 +3487,8 @@ if 'nome_html' in st.session_state and len(st.session_state.df_roteiros_alternat
                 df_pdf = pd.concat([df_router_filtrado_2, df_hoteis_pax_max, df_roteiros_alternativos], ignore_index=True)
 
                 df_pdf_2 = df_pdf[['Reserva', 'Data Horario Apresentacao']].sort_values(by='Reserva').reset_index(drop=True)
+
+                st.session_state.df_insercao = df_pdf[['Id_Servico', 'Data Horario Apresentacao']].reset_index(drop=True)
                 
                 for index in range(len(df_pdf)):
 
@@ -3452,3 +3520,14 @@ if 'nome_html' in st.session_state and len(st.session_state.df_roteiros_alternat
                     file_name=st.session_state.nome_html,
                     mime="text/html"
                 )
+
+if 'df_insercao' in st.session_state and len(st.session_state.df_insercao)>0:
+
+    lancar_horarios = st.button('Lançar Horários')
+
+    if lancar_horarios:
+
+        df_insercao = atualizar_banco_dados(st.session_state.df_insercao, 'test_phoenix_joao_pessoa')
+
+        st.session_state.df_insercao = st.session_state.df_insercao.drop(df.index)
+
