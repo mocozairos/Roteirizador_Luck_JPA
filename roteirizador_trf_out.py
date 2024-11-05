@@ -2720,59 +2720,6 @@ def plotar_roteiros_gerais_final(df_servicos, df_alternativos, coluna):
 
     return coluna
 
-def gerar_horarios_apresentacao_2(df_servicos):
-
-    for index in range(len(df_servicos)):
-
-        if index==0:
-
-            df_servicos.at[index, 'Data Horario Apresentacao']=\
-                definir_horario_primeiro_hotel(df_servicos, index)
-            
-            if not pd.isna(df_servicos.at[index, 'Hoteis Juntos p/ Carro Principal']):
-                                    
-                paxs_hotel = df_servicos[df_servicos['Hoteis Juntos p/ Carro Principal']==df_servicos.at[index, 'Hoteis Juntos p/ Carro Principal']]\
-                    ['Total ADT | CHD'].sum()
-                
-            else:
-
-                paxs_hotel = df_servicos[df_servicos['Est Origem']==df_servicos.at[index, 'Est Origem']]['Total ADT | CHD'].sum()
-
-
-        elif (df_servicos.at[index, 'Est Origem']==df_servicos.at[index-1, 'Est Origem']) | \
-            (df_servicos.at[index, 'Hoteis Juntos p/ Carro Principal']==df_servicos.at[index-1, 'Hoteis Juntos p/ Carro Principal']):
-
-            df_servicos.at[index, 'Data Horario Apresentacao']=\
-                df_servicos.at[index-1, 'Data Horario Apresentacao']
-
-        else:
-
-            bairro=df_servicos.at[index, 'Região']
-
-            if not pd.isna(df_servicos.at[index, 'Hoteis Juntos p/ Carro Principal']):
-                                    
-                paxs_hotel = df_servicos[df_servicos['Hoteis Juntos p/ Carro Principal']==df_servicos.at[index, 'Hoteis Juntos p/ Carro Principal']]\
-                    ['Total ADT | CHD'].sum()
-                
-            else:
-
-                paxs_hotel = df_servicos[df_servicos['Est Origem']==df_servicos.at[index, 'Est Origem']]['Total ADT | CHD'].sum()
-
-            if bairro!='':
-
-                intervalo_ref = definir_intervalo_ref(df_servicos, index)
-                
-            if paxs_hotel>=pax_cinco_min:
-
-                intervalo_ref+=intervalo_hoteis_bairros_iguais
-
-            data_horario_hotel = df_servicos.at[index-1, 'Data Horario Apresentacao']-\
-                intervalo_ref
-
-            df_servicos.at[index, 'Data Horario Apresentacao']=data_horario_hotel
-
-    return df_servicos
-
 def atualizar_banco_dados(df_exportacao, base_luck):
 
     config = {
