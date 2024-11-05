@@ -2243,6 +2243,8 @@ def verificar_rotas_alternativas_ou_plotar_roteiros(df_roteiros_alternativos, ro
         
         df_pdf_2 = df_pdf[['Reserva', 'Data Horario Apresentacao']].sort_values(by='Reserva').reset_index(drop=True)
 
+        st.session_state.df_insercao = df_pdf[['Id_Reserva', 'Id_Servico', 'Data Horario Apresentacao', 'Data Horario Apresentacao Original']].reset_index(drop=True)
+
         st.session_state.df_insercao = df_pdf[['Id_Servico', 'Data Horario Apresentacao']].reset_index(drop=True)
         
         for index in range(len(df_pdf)):
