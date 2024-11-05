@@ -2856,22 +2856,6 @@ if not 'df_router' in st.session_state:
     st.session_state.df_router = gerar_df_phoenix('vw_router', 'test_phoenix_joao_pessoa')
 
     st.session_state.df_router['Data Horario Apresentacao Original'] = st.session_state.df_router['Data Horario Apresentacao']
-
-# Puxando dados de hoteis das planilhas
-
-if not 'df_joao_pessoa' in st.session_state:
-
-    puxar_sequencias_hoteis()
-
-    st.session_state.dict_regioes_hoteis = \
-        {'HOTEL CAMPINA GRANDE / AEROPORTO CAMPINA GRANDE': ['df_campina_grande', 'Campina Grande', 'Hoteis Campina Grande', 
-                                                             'Campina Grande'], 
-         'HOTÉIS PITIMBU / AEROPORTO RECIFE': ['df_pitimbu', 'Pitimbu', 'Hoteis Pitimbu', 'Pitimbú'], 
-         'HOTÉIS JOÃO PESSOA / AEROPORTO RECIFE': ['df_joao_pessoa', 'João Pessoa', 'Hoteis Joao Pessoa', 'João Pessoa'], 
-         'HOTÉIS CAMPINA GRANDE / AEROPORTO JOÃO PESSOA': ['df_campina_grande', 'Campina Grande', 'Hoteis Campina Grande', 
-                                                           'Campina Grande'], 
-         'HOTÉIS JOÃO PESSOA / AEROPORTO JOÃO PESSOA': ['df_joao_pessoa', 'João Pessoa', 'Hoteis Joao Pessoa', 'João Pessoa'], 
-         'HOTÉIS PITIMBU / AEROPORTO JOÃO PESSOA': ['df_pitimbu', 'Pitimbu', 'Hoteis Pitimbu', 'Pitimbú']}
     
 # Parâmetros p/ o robô de intervalo inicial, max hoteis, etc...
 
@@ -2926,45 +2910,19 @@ row21 = st.columns(2)
 
 with row2[0]:
 
-    row2_1=st.columns(2)
-
-    # Botão Atualizar Hoteis
-
-    with row2_1[0]:
-
-        atualizar_hoteis = st.button('Atualizar Sequência de Hoteis')
-
-        # Puxando sequência de hoteis
-
-        if atualizar_hoteis:
-
-            puxar_sequencias_hoteis()
-
-            st.session_state.dict_regioes_hoteis = \
-                {'HOTEL CAMPINA GRANDE / AEROPORTO CAMPINA GRANDE': ['df_campina_grande', 'Campina Grande', 'Hoteis Campina Grande', 
-                                                                    'Campina Grande'], 
-                'HOTÉIS PITIMBU / AEROPORTO RECIFE': ['df_pitimbu', 'Pitimbu', 'Hoteis Pitimbu', 'Pitimbú'], 
-                'HOTÉIS JOÃO PESSOA / AEROPORTO RECIFE': ['df_joao_pessoa', 'João Pessoa', 'Hoteis Joao Pessoa', 'João Pessoa'], 
-                'HOTÉIS CAMPINA GRANDE / AEROPORTO JOÃO PESSOA': ['df_campina_grande', 'Campina Grande', 'Hoteis Campina Grande', 
-                                                                'Campina Grande'], 
-                'HOTÉIS JOÃO PESSOA / AEROPORTO JOÃO PESSOA': ['df_joao_pessoa', 'João Pessoa', 'Hoteis Joao Pessoa', 'João Pessoa'], 
-                'HOTÉIS PITIMBU / AEROPORTO JOÃO PESSOA': ['df_pitimbu', 'Pitimbu', 'Hoteis Pitimbu', 'Pitimbú']}
-
     # Botão Atualizar Dados Phoenix
 
-    with row2_1[1]:
+    atualizar_phoenix = st.button('Atualizar Dados Phoenix')
 
-        atualizar_phoenix = st.button('Atualizar Dados Phoenix')
+    if atualizar_phoenix:
 
-        if atualizar_phoenix:
+        st.session_state.df_router = gerar_df_phoenix('vw_router', 'test_phoenix_joao_pessoa')
 
-            st.session_state.df_router = gerar_df_phoenix('vw_router', 'test_phoenix_joao_pessoa')
+        st.session_state.df_router['Data Horario Apresentacao Original'] = st.session_state.df_router['Data Horario Apresentacao']
 
-            st.session_state.df_router['Data Horario Apresentacao Original'] = st.session_state.df_router['Data Horario Apresentacao']
-
-            if 'df_servico_voos_horarios' in st.session_state:
-                
-                st.session_state['df_servico_voos_horarios'] = pd.DataFrame(columns=['Servico', 'Voo', 'Horario Voo'])
+        if 'df_servico_voos_horarios' in st.session_state:
+            
+            st.session_state['df_servico_voos_horarios'] = pd.DataFrame(columns=['Servico', 'Voo', 'Horario Voo'])
 
     # Campo de data
 
@@ -3259,6 +3217,18 @@ if servico_roteiro and 'df_horario_esp_ultimo_hotel' in st.session_state:
 # Roteirizando Regiões
 
 if roteirizar:
+
+    puxar_sequencias_hoteis()
+
+    st.session_state.dict_regioes_hoteis = \
+        {'HOTEL CAMPINA GRANDE / AEROPORTO CAMPINA GRANDE': ['df_campina_grande', 'Campina Grande', 'Hoteis Campina Grande', 
+                                                            'Campina Grande'], 
+        'HOTÉIS PITIMBU / AEROPORTO RECIFE': ['df_pitimbu', 'Pitimbu', 'Hoteis Pitimbu', 'Pitimbú'], 
+        'HOTÉIS JOÃO PESSOA / AEROPORTO RECIFE': ['df_joao_pessoa', 'João Pessoa', 'Hoteis Joao Pessoa', 'João Pessoa'], 
+        'HOTÉIS CAMPINA GRANDE / AEROPORTO JOÃO PESSOA': ['df_campina_grande', 'Campina Grande', 'Hoteis Campina Grande', 
+                                                        'Campina Grande'], 
+        'HOTÉIS JOÃO PESSOA / AEROPORTO JOÃO PESSOA': ['df_joao_pessoa', 'João Pessoa', 'Hoteis Joao Pessoa', 'João Pessoa'], 
+        'HOTÉIS PITIMBU / AEROPORTO JOÃO PESSOA': ['df_pitimbu', 'Pitimbu', 'Hoteis Pitimbu', 'Pitimbú']}
 
     nome_df_hotel = st.session_state.dict_regioes_hoteis[servico_roteiro][0]
 
