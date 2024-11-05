@@ -9,6 +9,11 @@ import gspread
 import webbrowser
 
 def gerar_df_phoenix(vw_name, base_luck):
+
+    data_hoje = datetime.now()
+
+    data_hoje_str = data_hoje.strftime("%Y-%m-%d")
+
     # Parametros de Login AWS
     config = {
     'user': 'user_automation_jpa',
@@ -20,7 +25,7 @@ def gerar_df_phoenix(vw_name, base_luck):
     conexao = mysql.connector.connect(**config)
     cursor = conexao.cursor()
 
-    request_name = f'SELECT * FROM {vw_name}'
+    request_name = f'SELECT * FROM {vw_name} WHERE {vw_name}.`Data Execucao`>={data_hoje_str}'
 
     # Script MySql para requests
     cursor.execute(
@@ -3418,7 +3423,6 @@ if roteirizar:
 
     verificar_rotas_alternativas_ou_plotar_roteiros(df_roteiros_alternativos, row_warning, row3, coluna, df_hoteis_pax_max, 
                                                     df_router_filtrado_2, st.session_state.df_juncao_voos, st.session_state.nome_html)
-
 
 if 'nome_html' in st.session_state and len(st.session_state.df_roteiros_alternativos)>0:
 
