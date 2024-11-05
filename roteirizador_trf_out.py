@@ -2776,7 +2776,6 @@ def atualizar_banco_dados(df_exportacao, base_luck):
     'host': 'comeia.cixat7j68g0n.us-east-1.rds.amazonaws.com',
     'database': base_luck
     }
-
     # Conexão ao banco de dados
     conexao = mysql.connector.connect(**config)
     cursor = conexao.cursor()
@@ -2788,15 +2787,20 @@ def atualizar_banco_dados(df_exportacao, base_luck):
     # Placeholder para exibir o DataFrame e atualizar em tempo real
     placeholder = st.empty()
     for idx, row in df_exportacao.iterrows():
-        # id_reserva = row['Id Reserva']
+        id_reserva = row['Id_Reserva']
         id_servico = row['Id_Servico']
-        # currentPresentationHour = str(row['Horario de apresentação atual'])
+        currentPresentationHour = str(row['Data Horario Apresentacao Original'])
         newPresentationHour = str(row['Data Horario Apresentacao'])
         
-        # data = '{"presentation_hour":["' + currentPresentationHour + '","' + newPresentationHour + ' Roteirizador"]}'
+        data = '{"presentation_hour":["' + currentPresentationHour + '","' + newPresentationHour + ' Roteirizador"]}'
         
-        # #Timestamp Unix atual em string
-        # current_timestamp = str(int(time.time()))
+        #Horário atual em string
+
+        hora_execucao = datetime.now()
+    
+        hora_execucao_menos_3h = hora_execucao - timedelta(hours=3)
+
+        current_timestamp = int(hora_execucao_menos_3h.timestamp())
         
         try:
             # Atualizar o banco de dados se o ID já existir
@@ -2808,14 +2812,14 @@ def atualizar_banco_dados(df_exportacao, base_luck):
         except Exception as e:
             df_exportacao.at[idx, 'Status Serviço'] = f'Erro: {e}'
         
-        # try:
-        #     # Adicionar registro de edição na tabela de auditoria
-        #     query = "INSERT INTO changelogs (relatedObjectType, relatedObjectId, parentId, data, createdAt, type, userId, module, hostname) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, null)"
-        #     cursor.execute(query, ('ReserveService', id_servico, id_reserva, data, current_timestamp, 'update', st.query_params["userId"], 'router'))
-        #     conexao.commit()
-        #     df_exportacao.at[idx, 'Status Auditoria'] = 'Atualizado com sucesso'
-        # except Exception as e:
-        #     df_exportacao.at[idx, 'Status Auditoria'] = f'Erro: {e}'
+        try:
+            # Adicionar registro de edição na tabela de auditoria
+            query = "INSERT INTO changelogs (relatedObjectType, relatedObjectId, parentId, data, createdAt, type, userId, module, hostname) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, null)"
+            cursor.execute(query, ('ReserveService', id_servico, id_reserva, data, current_timestamp, 'update', st.query_params["userId"], 'router'))
+            conexao.commit()
+            df_exportacao.at[idx, 'Status Auditoria'] = 'Atualizado com sucesso'
+        except Exception as e:
+            df_exportacao.at[idx, 'Status Auditoria'] = f'Erro: {e}'
             
         # Define o estilo para coloração condicional
         styled_df = df_exportacao.style.applymap(
@@ -2832,6 +2836,41 @@ def atualizar_banco_dados(df_exportacao, base_luck):
     conexao.close()
     return df_exportacao
 
+def getUser(userId, base_luck):
+
+    config = {
+    'user': 'user_automation',
+    'password': 'auto_luck_2024',
+    'host': 'comeia.cixat7j68g0n.us-east-1.rds.amazonaws.com',
+    'database': base_luck
+    }
+
+    # Cria uma cópia do config e sobrescreve o campo database
+    config_general = config.copy()
+    config_general['database'] = 'test_phoenix_general'
+    
+    # Conexão às Views usando o config modificado
+    conexao = mysql.connector.connect(**config_general)
+    cursor = conexao.cursor()
+
+    request_name = f'SELECT * FROM user WHERE ID = {userId}'
+
+    # Script MySQL para requests
+    cursor.execute(request_name)
+    # Coloca o request em uma variavel
+    resultado = cursor.fetchall()
+    # Busca apenas os cabeçalhos do Banco
+    cabecalho = [desc[0] for desc in cursor.description]
+
+    # Fecha a conexão
+    cursor.close()
+    conexao.close()
+
+    # Coloca em um dataframe e converte decimal para float
+    df = pd.DataFrame(resultado, columns=cabecalho)
+    df = df.applymap(lambda x: float(x) if isinstance(x, decimal.Decimal) else x)
+    return df
+
 st.set_page_config(layout='wide')
 
 st.title('Roteirizador de Transfer Out - João Pessoa')
@@ -2842,11 +2881,27 @@ st.header('Parâmetros')
 
 row1 = st.columns(3)
 
+# Verificando se o link está com ID do usuário
+
+if not st.query_params or not st.query_params["userId"]:
+
+    st.error("Usuário não autenticado")
+
+    st.stop()
+
+# Carrega os dados da tabela 'user`
+
+if not 'df_user' in st.session_state:
+    
+    st.session_state.df_user = getUser(st.query_params["userId"], 'test_phoenix_joao_pessoa')
+
 # Puxando dados do phoenix
 
 if not 'df_router' in st.session_state:
 
     st.session_state.df_router = gerar_df_phoenix('vw_router', 'test_phoenix_joao_pessoa')
+
+    st.session_state.df_router['Data Horario Apresentacao Original'] = st.session_state.df_router['Data Horario Apresentacao']
 
 # Puxando dados de hoteis das planilhas
 
@@ -2950,6 +3005,8 @@ with row2[0]:
         if atualizar_phoenix:
 
             st.session_state.df_router = gerar_df_phoenix('vw_router', 'test_phoenix_joao_pessoa')
+
+            st.session_state.df_router['Data Horario Apresentacao Original'] = st.session_state.df_router['Data Horario Apresentacao']
 
             if 'df_servico_voos_horarios' in st.session_state:
                 
@@ -3488,7 +3545,7 @@ if 'nome_html' in st.session_state and len(st.session_state.df_roteiros_alternat
 
                 df_pdf_2 = df_pdf[['Reserva', 'Data Horario Apresentacao']].sort_values(by='Reserva').reset_index(drop=True)
 
-                st.session_state.df_insercao = df_pdf[['Id_Servico', 'Data Horario Apresentacao']].reset_index(drop=True)
+                st.session_state.df_insercao = df_pdf[['Id_Reserva', 'Id_Servico', 'Data Horario Apresentacao', 'Data Horario Apresentacao Original']].reset_index(drop=True)
                 
                 for index in range(len(df_pdf)):
 
@@ -3529,5 +3586,5 @@ if 'df_insercao' in st.session_state and len(st.session_state.df_insercao)>0:
 
         df_insercao = atualizar_banco_dados(st.session_state.df_insercao, 'test_phoenix_joao_pessoa')
 
-        st.session_state.df_insercao = st.session_state.df_insercao.drop(df.index)
+        st.session_state.df_insercao = st.session_state.df_insercao.drop(st.session_state.df_insercao.index)
 
