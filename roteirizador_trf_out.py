@@ -3505,7 +3505,11 @@ if 'df_insercao' in st.session_state and len(st.session_state.df_insercao)>0:
 
     if lancar_horarios:
 
-        df_insercao = atualizar_banco_dados(st.session_state.df_insercao, 'test_phoenix_joao_pessoa')
+        df_insercao_ref = st.session_state.df_insercao
 
         st.session_state.df_insercao = st.session_state.df_insercao.drop(st.session_state.df_insercao.index)
+
+        df_insercao = atualizar_banco_dados(df_insercao_ref, 'test_phoenix_joao_pessoa')
+
+        
 
