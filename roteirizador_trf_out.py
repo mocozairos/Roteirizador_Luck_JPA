@@ -3501,24 +3501,13 @@ if 'nome_html' in st.session_state and len(st.session_state.df_roteiros_alternat
 
 if 'df_insercao' in st.session_state and len(st.session_state.df_insercao)>0:
 
-    if 'lancar_horarios_acionado' not in st.session_state:
-        
-        st.session_state.lancar_horarios_acionado = False
+    lancar_horarios = st.button('Lançar Horários')
 
-    if not st.session_state.lancar_horarios_acionado:
-        
-        lancar_horarios = st.button('Lançar Horários')
+    if lancar_horarios and len(st.session_state.df_insercao)>0:
 
-    if lancar_horarios:
-        
-            st.session_state.lancar_horarios_acionado = True
-        
-            df_insercao = atualizar_banco_dados(st.session_state.df_insercao, 'test_phoenix_joao_pessoa')
-        
-            st.session_state.df_insercao = st.session_state.df_insercao.drop(st.session_state.df_insercao.index)
-        
-if 'df_insercao' in st.session_state and len(st.session_state.df_insercao) > 0 and st.session_state.lancar_horarios_acionado:
-    st.session_state.lancar_horarios_acionado = False
+        df_insercao = atualizar_banco_dados(st.session_state.df_insercao, 'test_phoenix_joao_pessoa')
+
+        st.session_state.df_insercao = st.session_state.df_insercao.drop(st.session_state.df_insercao.index)
 
         
 
