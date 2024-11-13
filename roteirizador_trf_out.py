@@ -2788,6 +2788,8 @@ def atualizar_banco_dados(df_exportacao, base_luck):
     conexao.close()
 
     st.session_state.df_insercao = st.session_state.df_insercao.drop(st.session_state.df_insercao.index)
+
+    st.session_state.dados_inseridos = True
     
     return df_exportacao
 
@@ -3219,6 +3221,8 @@ if servico_roteiro and 'df_horario_esp_ultimo_hotel' in st.session_state:
 
 if roteirizar:
 
+    st.session_state.dados_inseridos = False
+
     puxar_sequencias_hoteis()
 
     st.session_state.dict_regioes_hoteis = \
@@ -3501,8 +3505,11 @@ if 'nome_html' in st.session_state and len(st.session_state.df_roteiros_alternat
                     file_name=st.session_state.nome_html,
                     mime="text/html"
                 )
+if not 'dados_inseridos' in st.session_state:
 
-if 'df_insercao' in st.session_state and len(st.session_state.df_insercao)>0:
+    st.session_state.dados_inseridos = True
+    
+if 'df_insercao' in st.session_state and st.session_state.dados_inseridos == False:
 
     lancar_horarios = st.button('Lançar Horários')
 
