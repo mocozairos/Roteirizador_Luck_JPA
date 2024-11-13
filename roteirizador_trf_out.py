@@ -2786,6 +2786,9 @@ def atualizar_banco_dados(df_exportacao, base_luck):
     
     cursor.close()
     conexao.close()
+
+    st.experimental_rerun()
+    
     return df_exportacao
 
 def getUser(userId, base_luck):
