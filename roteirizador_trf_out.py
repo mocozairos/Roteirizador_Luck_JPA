@@ -3499,6 +3499,8 @@ if 'nome_html' in st.session_state and len(st.session_state.df_roteiros_alternat
                     mime="text/html"
                 )
 
+st.session_state.df_insercao
+
 if 'df_insercao' in st.session_state and len(st.session_state.df_insercao)>0:
 
     lancar_horarios = st.button('Lançar Horários')
