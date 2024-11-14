@@ -3738,8 +3738,6 @@ if 'nome_html' in st.session_state and len(st.session_state.df_roteiros_alternat
                 if 'df_servico_voos_horarios' in st.session_state:
                     
                     st.session_state['df_servico_voos_horarios'] = pd.DataFrame(columns=['Servico', 'Voo', 'Horario Voo'])
-            
-                df_fretamentos = st.session_state.df_fretamentos
 
                 df_hoteis_pax_max = st.session_state.df_hoteis_pax_max
 
