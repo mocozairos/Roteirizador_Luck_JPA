@@ -3194,6 +3194,8 @@ st.divider()
 
 st.header('Juntar Voos')
 
+st.markdown('*os voos internacionais entre 00:00 e 00:59, na verdade serão executados em D+1, porém, pela antecedência de 1h a mais, eles aparecem no dia selecionado*')
+
 if 'df_juncao_voos' not in st.session_state:
 
     st.session_state.df_juncao_voos = pd.DataFrame(columns=['Servico', 'Voo', 'Horário', 'Tipo do Translado', 'Junção'])
