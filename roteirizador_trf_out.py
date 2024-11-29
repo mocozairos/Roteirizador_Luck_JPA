@@ -3578,8 +3578,8 @@ if roteirizar:
     
     # Categorizando serviços com 'CADEIRANTE' na observação
     
-    df_router_filtrado['Modo do Servico'] = df_router_filtrado.apply(
-        lambda row: 'CADEIRANTE' if verificar_cadeirante(row['Observacao']) else row['Modo do Servico'], axis=1)
+    # df_router_filtrado['Modo do Servico'] = df_router_filtrado.apply(
+    #     lambda row: 'CADEIRANTE' if verificar_cadeirante(row['Observacao']) else row['Modo do Servico'], axis=1)
     
     # Excluindo linhas onde exite 'CLD' na observação
 
